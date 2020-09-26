@@ -5,4 +5,12 @@ Automate updating Ubuntu with some choices
 2. Make executable: `chmod +x /usr/local/bin/update`
 3. Run as sudo: `sudo update`
 
-This bash script updates the apt cache, displays a list of upgradable packages, allows you to view individual package details or changelogs, and [allows you to upgrade specific packages (coming soon)] or all upgradable packages.
+This bash script updates the apt cache, lists upgradable packages, allows you to view individual package details or changelogs, and [coming soon: allows you to upgrade specific packages or] all upgradable packages.
+
+From the script's "help":
+    Enter a package # to show details of that package.
+    Enter "c" followed by a package # to see that package's changelog (e.g., c3).
+    Enter "f" to perform `apt full-upgrade`.
+    Enter "u" to perform `apt upgrade`.
+    Enter "u" followed by a package # to upgrade that specific package (e.g, u4).
+    Enter "s" to view the list of upgradable packages. Enter "x" to exit.
