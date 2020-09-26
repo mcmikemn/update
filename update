@@ -1,0 +1,46 @@
+#!/bin/bash
+AMBER='\033[0;33m'
+NC='\033[0m'
+
+printf "\n${AMBER}Updating Database...${NC}"
+apt update
+
+s=$(apt list --upgradable 2>/dev/null | sed -n '2,999p' | sed 's/\/.*//')
+t=$(echo $s | sed ':a;N;$!ba;s/\n/ /g')
+IFS=' ' read -ra fileList <<< "$t"
+
+showMenu () {
+    printf "\n\n"
+    printf "${AMBER}Upgradable Packages:${NC}\n\n"
+    for i in "${!fileList[@]}"
+    do
+        printf "[${AMBER}%s${NC}] %s\n" "${a[$(( $i + 1 ))]}$(( $i + 1 ))" "${fileList[$i]}"
+    done
+    printf "[${AMBER}F${NC}]ull-upgrade\n"
+    printf "[${AMBER}U${NC}]pgrade\n"
+    printf "E[${AMBER}x${NC}]it\n\n"
+}
+
+if [ "${#filelist[@]}" == 0 ]
+then
+    printf "\n${AMBER}You're already up to date!${NC}\n\n"
+    sleep 1
+    exit
+fi
+
+showMenu
+
+while true; do
+    printf "${AMBER}Which? Entering a package # will show it's details, entering \"c\" and then a package # will show its changelog.${NC} "
+	read -t 30 -n 3 opt
+	[ -z "$opt" ] && opt="x"
+	case $opt in
+		[0-9]* ) sudo apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep 5s; showMenu;;
+        [Cc][0-9]* ) sudo apt-get changelog ${fileList[$(( "${opt/c}" - 1 ))]}; sleep 5s; showMenu;;
+		[Ff]* ) printf "\n\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
+		[Uu]* ) printf "\n\nRunning Upgrade\n\n"; apt upgrade; break;;
+		#[Xx]* ) printf "\n\n${AMBER}Not there? I'll exit now.${NC}\n\n"; exit;;
+		[Xx]* ) printf "\n\n"; exit;;
+		* ) printf "\nPlease choose a package #, c followed by a package #, f, u, or x.\n\n";;
+	esac
+done
