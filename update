@@ -2,7 +2,7 @@
 AMBER='\033[0;33m'
 NC='\033[0m'
 
-printf "\n${AMBER}Updating Database...${NC}"
+printf "\n${AMBER}Updating Database...${NC}\n\n"
 apt update
 
 s=$(apt list --upgradable 2>/dev/null | sed -n '2,999p' | sed 's/\/.*//')
@@ -10,37 +10,54 @@ t=$(echo $s | sed ':a;N;$!ba;s/\n/ /g')
 IFS=' ' read -ra fileList <<< "$t"
 
 showMenu () {
-    printf "\n\n"
-    printf "${AMBER}Upgradable Packages:${NC}\n\n"
+#    printf "\n\n"
+    printf "\n${AMBER}Upgradable Packages:${NC}\n\n"
     for i in "${!fileList[@]}"
     do
         printf "[${AMBER}%s${NC}] %s\n" "${a[$(( $i + 1 ))]}$(( $i + 1 ))" "${fileList[$i]}"
     done
     printf "[${AMBER}F${NC}]ull-upgrade\n"
     printf "[${AMBER}U${NC}]pgrade\n"
+    printf "[${AMBER}S${NC}]how this list of upgradable packages\n"
     printf "E[${AMBER}x${NC}]it\n\n"
 }
 
-if [ "${#filelist[@]}" == 0 ]
+showHelp () {
+    printf "\nEnter a ${AMBER}package #${NC} to show details of that package."
+    printf "\nEnter ${AMBER}\"c\" followed by a package #${NC} to see that package's changelog (e.g., c3)."
+    printf "\nEnter ${AMBER}\"u\" followed by a package #${NC} to upgrade that specific package (e.g, u12)."
+    printf "\nEnter ${AMBER}\"f\"${NC} to perform \`apt full-upgrade\` (all upgradable packages)."
+    printf "\nEnter ${AMBER}\"u\"${NC} to perform \`apt upgrade\` (all upgradable packages)."
+    printf "\nEnter ${AMBER}\"s\"${NC} to view the list of upgradable packages."
+    printf "\nEnter ${AMBER}\"x\"${NC} to exit.\n\n"
+}
+
+timeout () {
+    printf "\n\n${AMBER}Not there? I'll exit now.${NC}\n\n"
+    exit;
+}
+
+if [ "${#fileList[@]}" == 0 ]
 then
     printf "\n${AMBER}You're already up to date!${NC}\n\n"
     sleep 1
-    exit
+#    exit
 fi
 
 showMenu
 
 while true; do
-    printf "${AMBER}Which? Entering a package # will show it's details, entering \"c\" and then a package # will show its changelog.${NC} "
-	read -t 30 -n 3 opt
-	[ -z "$opt" ] && opt="x"
-	case $opt in
-		[0-9]* ) sudo apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep 5s; showMenu;;
-        [Cc][0-9]* ) sudo apt-get changelog ${fileList[$(( "${opt/c}" - 1 ))]}; sleep 5s; showMenu;;
-		[Ff]* ) printf "\n\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
-		[Uu]* ) printf "\n\nRunning Upgrade\n\n"; apt upgrade; break;;
-		#[Xx]* ) printf "\n\n${AMBER}Not there? I'll exit now.${NC}\n\n"; exit;;
-		[Xx]* ) printf "\n\n"; exit;;
-		* ) printf "\nPlease choose a package #, c followed by a package #, f, u, or x.\n\n";;
+    printf "${AMBER}Your choice?${NC} "
+	read -e -t 30 -n 4 opt
+	[ -z "$opt" ] && timeout
+    case $opt in
+		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep 5s; showMenu;;
+        [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep 5s; showMenu;;
+		[Uu][0-9]* ) printf "\nUpgrading ${fileList[$(( ${opt//u/} - 1 ))]}\n\n"; apt upgrade ${fileList[$(( "${opt//u/}" - 1 ))]}; showMenu;;
+		[Ff] ) printf "\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
+		[Uu] ) printf "\nRunning Upgrade\n\n"; apt upgrade; break;;
+        [Ss] ) showMenu;;
+		[Xx] ) printf "\nSee ya!\n\n"; exit;;
+		* ) showHelp;;
 	esac
 done
