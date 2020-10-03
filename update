@@ -41,7 +41,7 @@ if [ "${#fileList[@]}" == 0 ]
 then
     printf "\n${AMBER}You're already up to date!${NC}\n\n"
     sleep 1
-#    exit
+    exit
 fi
 
 showMenu
