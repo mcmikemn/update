@@ -1,5 +1,5 @@
 # update
-Automate updating Ubuntu with some choices.
+Simplify updating Ubuntu with some choices.
 
 ## Installation
 1. Copy to /usr/local/bin (or anywhere you want, adding that location to your $PATH)
