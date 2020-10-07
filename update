@@ -2,6 +2,24 @@
 AMBER='\033[0;33m'
 NC='\033[0m'
 
+showUsage () {
+    printf "\nUsage:\n"
+    printf "\nRun as sudo (${AMBER}sudo update${NC}).\n"
+    printf "The apt cache will be updated and you'll see a list of any package(s) that can be upgraded, and you can view details or the changelog of any package(s), and can upgrade individual package(s) or perform an \`apt full-upgrade\` or \`apt upgrade\`.\n"
+    printf "\nAdd an \"f\" switch to run \`apt full-upgrade\` without prompts (${AMBER}sudo update f${NC}).\n"
+    printf "\nAdd a \"u\" switch to run \`apt upgrade\` without prompts (${AMBER}sudo update u${NC}).\n\n"
+}
+
+if [ $# -gt 0 ]
+then
+    case $1 in
+        [fF] ) printf "\nRunning Full-upgrade\n\n"; apt -y full-upgrade; printf "\n"; exit;;
+        [uU] ) printf "\nRunning Upgrade\n\n"; apt -y upgrade; printf "\n"; exit;;
+        g ) showUsage; exit;;
+        * ) showUsage; exit;;
+    esac
+fi
+
 printf "\n${AMBER}Updating Database...${NC}\n\n"
 apt update
 
@@ -51,8 +69,8 @@ while true; do
 	read -e -t 30 -n 4 opt
 	[ -z "$opt" ] && timeout
     case $opt in
-		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep 5s; showMenu;;
-        [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep 5s; showMenu;;
+		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep 1s; showMenu;;
+        [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep 1s; showMenu;;
 		[Uu][0-9]* ) printf "\nUpgrading ${fileList[$(( ${opt//u/} - 1 ))]}\n\n"; apt upgrade ${fileList[$(( "${opt//u/}" - 1 ))]}; showMenu;;
 		[Ff] ) printf "\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
 		[Uu] ) printf "\nRunning Upgrade\n\n"; apt upgrade; break;;
