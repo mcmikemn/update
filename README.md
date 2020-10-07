@@ -9,8 +9,8 @@ This bash script updates the apt cache, lists upgradable packages, allows you to
 
 ## Usage
 1. Run as sudo: `sudo update`
-  a. Optionally, use an "f" switch to run `apt full-upgrade` (all upgradable packages) without prompts: `sudo update f`
-  b. Optionally, use a "u" switch to run `apt upgrade` (all upgradable packages) without prompts: `sudo update u`
+   1. Optionally, use an "f" switch to run `apt full-upgrade` (all upgradable packages) without prompts: `sudo update f`
+   2. Optionally, use a "u" switch to run `apt upgrade` (all upgradable packages) without prompts: `sudo update u`
 
 ##### From the script's "help":
 ```
