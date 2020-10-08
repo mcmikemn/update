@@ -15,7 +15,6 @@ then
     case $1 in
         [fF] ) printf "\nRunning Full-upgrade\n\n"; apt -y full-upgrade; printf "\n"; exit;;
         [uU] ) printf "\nRunning Upgrade\n\n"; apt -y upgrade; printf "\n"; exit;;
-        g ) showUsage; exit;;
         * ) showUsage; exit;;
     esac
 fi
