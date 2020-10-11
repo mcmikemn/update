@@ -74,7 +74,7 @@ while true; do
 		[Ff] ) printf "\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
 		[Uu] ) printf "\nRunning Upgrade\n\n"; apt upgrade; break;;
         [Ss] ) showMenu;;
-		[Xx] ) printf "\nSee ya!\n\n"; exit;;
+		[Xx] ) printf "\n${AMBER}See ya!${NC}\n\n"; exit;;
 		* ) showHelp;;
 	esac
 done
