@@ -70,7 +70,7 @@ while true; do
     case $opt in
 		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep 1s; showMenu;;
         [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep 1s; showMenu;;
-		[Uu][0-9]* ) printf "\nUpgrading ${fileList[$(( ${opt//u/} - 1 ))]}\n\n"; apt upgrade ${fileList[$(( "${opt//u/}" - 1 ))]}; showMenu;;
+		[Uu][0-9]* ) printf "\nUpgrading ${fileList[$(( ${opt//u/} - 1 ))]}\n\n"; apt upgrade ${fileList[$(( "${opt//u/}" - 1 ))]}; apt update; showMenu;;
 		[Ff] ) printf "\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
 		[Uu] ) printf "\nRunning Upgrade\n\n"; apt upgrade; break;;
         [Ss] ) showMenu;;
