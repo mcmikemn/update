@@ -1,6 +1,7 @@
 #!/bin/bash
 AMBER='\033[0;33m'
 NC='\033[0m'
+pause="2s"
 
 showUsage () {
     printf "\nUsage:\n"
@@ -9,22 +10,6 @@ showUsage () {
     printf "\nAdd an \"f\" switch to run \`apt full-upgrade\` without prompts (${AMBER}sudo update f${NC}).\n"
     printf "\nAdd a \"u\" switch to run \`apt upgrade\` without prompts (${AMBER}sudo update u${NC}).\n\n"
 }
-
-if [ $# -gt 0 ]
-then
-    case $1 in
-        [fF] ) printf "\nRunning Full-upgrade\n\n"; apt -y full-upgrade; printf "\n"; exit;;
-        [uU] ) printf "\nRunning Upgrade\n\n"; apt -y upgrade; printf "\n"; exit;;
-        * ) showUsage; exit;;
-    esac
-fi
-
-printf "\n${AMBER}Updating Database...${NC}\n\n"
-apt update
-
-s=$(apt list --upgradable 2>/dev/null | sed -n '2,999p' | sed 's/\/.*//')
-t=$(echo $s | sed ':a;N;$!ba;s/\n/ /g')
-IFS=' ' read -ra fileList <<< "$t"
 
 showMenu () {
 #    printf "\n\n"
@@ -54,6 +39,22 @@ timeout () {
     exit;
 }
 
+if [ $# -gt 0 ]
+then
+    case $1 in
+        [fF] ) printf "\nRunning Full-upgrade\n\n"; apt -y full-upgrade; printf "\n"; exit;;
+        [uU] ) printf "\nRunning Upgrade\n\n"; apt -y upgrade; printf "\n"; exit;;
+        * ) showUsage; exit;;
+    esac
+fi
+
+printf "\n${AMBER}Updating Database...${NC}\n\n"
+apt update
+
+s=$(apt list --upgradable 2>/dev/null | sed -n '2,999p' | sed 's/\/.*//')
+t=$(echo $s | sed ':a;N;$!ba;s/\n/ /g')
+IFS=' ' read -ra fileList <<< "$t"
+
 if [ "${#fileList[@]}" == 0 ]
 then
     printf "\n${AMBER}You're already up to date!${NC}\n\n"
@@ -68,8 +69,8 @@ while true; do
 	read -e -t 30 -n 4 opt
 	[ -z "$opt" ] && timeout
     case $opt in
-		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep 1s; showMenu;;
-        [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep 1s; showMenu;;
+		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep $pause; showMenu;;
+        [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep $pause; showMenu;;
 		[Uu][0-9]* ) printf "\nUpgrading ${fileList[$(( ${opt//u/} - 1 ))]}\n\n"; apt upgrade ${fileList[$(( "${opt//u/}" - 1 ))]}; apt update; showMenu;;
 		[Ff] ) printf "\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
 		[Uu] ) printf "\nRunning Upgrade\n\n"; apt upgrade; break;;
