@@ -1,14 +1,26 @@
 #!/bin/bash
 AMBER='\033[0;33m'
 NC='\033[0m'
-pause="2s"
+pause=".5s"
 
 showUsage () {
     printf "\nUsage:\n"
     printf "\nRun as sudo (${AMBER}sudo update${NC}).\n"
-    printf "The apt cache will be updated and you'll see a list of any package(s) that can be upgraded, and you can view details or the changelog of any package(s), and can upgrade individual package(s) or perform an \`apt full-upgrade\` or \`apt upgrade\`.\n"
+    printf "The apt cache will be updated and you'll see a list of any package(s) that can be upgraded, and you can view details or the changelog of any package(s), and can upgrade individual package(s) or perform an \`apt full-upgrade\` or \`apt upgrade\` or \`apt autoremove\`.\n"
     printf "\nAdd an \"f\" switch to run \`apt full-upgrade\` without prompts (${AMBER}sudo update f${NC}).\n"
-    printf "\nAdd a \"u\" switch to run \`apt upgrade\` without prompts (${AMBER}sudo update u${NC}).\n\n"
+    printf "\nAdd a \"u\" switch to run \`apt upgrade\` without prompts (${AMBER}sudo update u${NC}).\n"
+    printf "\nAdd an \"a\" switch to run \`apt autoremove\` without prompts (${AMBER}sudo autoremove a${NC}).\n\n"
+}
+
+showHelp () {
+    printf "\nEnter a ${AMBER}package #${NC} to show details of that package."
+    printf "\nEnter ${AMBER}\"c\" followed by a package #${NC} to see that package's changelog (e.g., c3)."
+    printf "\nEnter ${AMBER}\"u\" followed by a package #${NC} to upgrade that specific package (e.g, u12)."
+    printf "\nEnter ${AMBER}\"f\"${NC} to perform \`apt full-upgrade\` (all upgradable packages)."
+    printf "\nEnter ${AMBER}\"u\"${NC} to perform \`apt upgrade\` (all upgradable packages)."
+    printf "\nEnter ${AMBER}\"a\"${NC} to perform \`apt autoremove\` (remove unneeded packages)."
+    printf "\nEnter ${AMBER}\"s\"${NC} to view the list of upgradable packages."
+    printf "\nEnter ${AMBER}\"x\"${NC} to exit.\n\n"
 }
 
 showMenu () {
@@ -20,18 +32,9 @@ showMenu () {
     done
     printf "[${AMBER}F${NC}]ull-upgrade\n"
     printf "[${AMBER}U${NC}]pgrade\n"
+    printf "[${AMBER}A${NC}]utoremove\n"
     printf "[${AMBER}S${NC}]how this list of upgradable packages\n"
     printf "E[${AMBER}x${NC}]it\n\n"
-}
-
-showHelp () {
-    printf "\nEnter a ${AMBER}package #${NC} to show details of that package."
-    printf "\nEnter ${AMBER}\"c\" followed by a package #${NC} to see that package's changelog (e.g., c3)."
-    printf "\nEnter ${AMBER}\"u\" followed by a package #${NC} to upgrade that specific package (e.g, u12)."
-    printf "\nEnter ${AMBER}\"f\"${NC} to perform \`apt full-upgrade\` (all upgradable packages)."
-    printf "\nEnter ${AMBER}\"u\"${NC} to perform \`apt upgrade\` (all upgradable packages)."
-    printf "\nEnter ${AMBER}\"s\"${NC} to view the list of upgradable packages."
-    printf "\nEnter ${AMBER}\"x\"${NC} to exit.\n\n"
 }
 
 timeout () {
@@ -44,6 +47,7 @@ then
     case $1 in
         [fF] ) printf "\nRunning Full-upgrade\n\n"; apt -y full-upgrade; printf "\n"; exit;;
         [uU] ) printf "\nRunning Upgrade\n\n"; apt -y upgrade; printf "\n"; exit;;
+        [aA] ) printf "\nRemoving unneeded packages\n\n"; apt -y autoremove; exit;;
         * ) showUsage; exit;;
     esac
 fi
@@ -69,11 +73,12 @@ while true; do
 	read -e -t 30 -n 4 opt
 	[ -z "$opt" ] && timeout
     case $opt in
-		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep $pause; showMenu;;
-        [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep $pause; showMenu;;
+		[0-9]* ) apt-cache show --no-all-versions ${fileList[(( $opt - 1 ))]}; sleep $pause;;
+        [Cc][0-9]* ) apt-get changelog ${fileList[$(( "${opt//c/}" - 1 ))]}; sleep $pause;;
 		[Uu][0-9]* ) printf "\nUpgrading ${fileList[$(( ${opt//u/} - 1 ))]}\n\n"; apt upgrade ${fileList[$(( "${opt//u/}" - 1 ))]}; apt update; showMenu;;
 		[Ff] ) printf "\nRunning Full-upgrade\n\n"; apt full-upgrade; break;;
 		[Uu] ) printf "\nRunning Upgrade\n\n"; apt upgrade; break;;
+        [aA] ) printf "\nRemoving unneeded packages\n\n"; apt autoremove;;
         [Ss] ) showMenu;;
 		[Xx] ) printf "\n${AMBER}See ya!${NC}\n\n"; exit;;
 		* ) showHelp;;
