@@ -19,7 +19,7 @@ showHelp () {
     printf "\nEnter ${AMBER}\"f\"${NC} to perform \`apt full-upgrade\` (all upgradable packages)."
     printf "\nEnter ${AMBER}\"u\"${NC} to perform \`apt upgrade\` (all upgradable packages)."
     printf "\nEnter ${AMBER}\"a\"${NC} to perform \`apt autoremove\` (remove unneeded packages)."
-    printf "\nEnter ${AMBER}\"s\"${NC} to view the list of upgradable packages."
+    printf "\nEnter ${AMBER}\"s\"${NC} to show the list of upgradable packages."
     printf "\nEnter ${AMBER}\"x\"${NC} to exit.\n\n"
 }
 
